@@ -1,0 +1,21 @@
+#!/bin/bash -x
+if [ $[`date +"%s"` - `stat -c "%Y" /home/deb/nedorepo/Packages`] -gt 86400 ]
+then
+	touch /home/deb/nedorepo/Packages
+	(cd /home/deb/nedorepo; apt-ftparchive packages . > Packages)
+fi
+
+#echo "\n\n\n===== ARG ====="
+#echo $*
+#echo "===== ENV ====="
+#env
+#echo "===== === =====\n\n\n"
+
+#echo "deb http://builder.ctm.ru/$QUEUE/ $DIST main contrib non-free" >> /etc/apt/sources.list
+echo "deb http://builder.ctm.ru/$QUEUE/ $DIST main" >> /etc/apt/sources.list
+apt-key add /home/deb/nedorepo/repository_key.asc
+echo "=== sources list ==="
+cat /etc/apt/sources.list
+echo "=== === ==== === ==="
+apt-get update
+

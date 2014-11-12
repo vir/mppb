@@ -1,0 +1,48 @@
+# source: http://habrahabr.ru/blogs/ubuntu/57628/
+# and http://frit.su/index.php/Pbuilder
+
+# кодовые названия дистрибутивов Debian
+DEBIAN_SUITES=("unstable" "testing" "stable" "oldstable" "sid" "wheezy" "squeeze" "lenny")
+# названия дистрибутивов Ubuntu
+UBUNTU_SUITES=("jaunty" "intrepid" "hardy" "gutsy")
+
+# адреса зеркал с пакетами
+DEBIAN_MIRROR="ftp.uk.debian.org"
+UBUNTU_MIRROR="mirrors.kernel.org"
+
+# выбираем дистрибутив для использования
+: ${DIST:="$(lsb_release --short --codename)"}
+# а также архитектуру
+: ${ARCH:="$(dpkg --print-architecture)"}
+
+# компоненты дистрибутива по умолчанию
+COMPONENTS="main contrib non-free"
+
+# ну и давайте определим имя, которым мы будем обозначать отдельный образ
+NAME="$DIST"
+if [ -n "${ARCH}" ]; then
+    NAME="$NAME-$ARCH"
+    # следующая строчка нужна для того чтобы собирать под разные архитектуры
+    DEBOOTSTRAPOPTS=("--arch" "$ARCH" "${DEBOOTSTRAPOPTS[@]}")
+fi
+
+# где мы будем создавать, а потом искать файл образа
+BASETGZ="/home/deb/pbuilder/$NAME-base.tgz"
+DISTRIBUTION="$DIST"
+# и куда мы будем класть собранные пакеты
+BUILDRESULT="/home/deb/pbuilder/result/$DIST/"
+# тут у нас будет лежать кэш слитых из сети пакетов
+APTCACHE="/home/deb/pbuilder/aptcache/$NAME/"
+# а в это место будет распаковываться образ для сборки
+BUILDPLACE="/home/deb/pbuilder/build/"
+
+# mount dir
+BINDMOUNTS="/home/deb/nedorepo"
+# use local mirrors
+#OTHERMIRROR="deb http://debian.ctm.ru/debian/ $DIST main|deb file:///home/deb/nedorepo ./"
+OTHERMIRROR="deb file:///home/deb/nedorepo ./"
+# hooks dir
+HOOKDIR="/home/deb/pbuilder-hooks"
+EXTRAPACKAGES="apt-utils"
+
+

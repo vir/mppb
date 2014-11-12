@@ -1,0 +1,20 @@
+a { text-decoration:none; }
+a:hover { text-decoration:underline; }
+table    { border:1px solid black; border-collapse:collapse; }
+table td { border:1px solid #AAA; margin:0; padding:.1em .2em; }
+table th { background-color: #FFA; padding:.1em .3em; }
+.weak { font-size:80%; color:gray; }
+
+#jobslist { float:right; overflow:hidden; }
+#jobslist { font-size:small; border:1px solid gray; }
+.ok       { background-color:#AFA; }
+.error    { background-color:#FAA; }
+.building { background-color:#FFA; }
+.unknown  { background-color:#AAA; }
+.waiting  { background-color:#AFF; }
+
+ul.hor { display:inline; padding:0; margin:5px 0; border:2px solid gray; border-left:none; }
+ul.hor li { display:inline; list-style:none; border-left: 2px solid gray; margin:0; }
+ul.hor li a { padding:2px 5px; margin:2px; }
+ul.hor li a:hover { text-decoration:none; background-color:#FFC; margin:0; border:2px solid blue; }
+

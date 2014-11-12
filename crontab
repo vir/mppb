@@ -1,0 +1,4 @@
+# m h  dom mon dow   command
+03 01 * * * /home/deb/update.sh > /home/deb/logs/update.log 2>&1
+02 03 * * * /usr/bin/sudo /home/deb/cleanup.sh
+

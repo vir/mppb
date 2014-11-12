@@ -1,0 +1,15 @@
+#!/bin/sh -x
+(cd /home/deb/nedorepo; apt-ftparchive packages . > Packages)
+
+#echo "\n\n\n===== ARG ====="
+#echo $*
+#echo "===== ENV ====="
+#env
+#echo "===== === =====\n\n\n"
+
+echo "deb http://builder.ctm.ru/$QUEUE/ $DIST main" >> /etc/apt/sources.list
+echo "=== sources list ==="
+cat /etc/apt/sources.list
+echo "=== === ==== === ==="
+apt-get update
+

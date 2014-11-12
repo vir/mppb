@@ -1,0 +1,34 @@
+Upgrade system
+	apt-get update && apt-get upgrade && apt-get dist-upgrade
+
+Reboot
+	shutdown -r now
+
+Check new layout:
+	GET ftp://ftp.debian.org/debian/dists/README
+
+Update repository config:
+	vim repo-vir/conf/distributions
+
+Fix repository:
+	for repo in repo-vir/ repo-nightly repo-releases
+	do
+		reprepro -b $repo --delete createsymlinks
+		reprepro -b $repo --delete clearvanished
+		reprepro -b $repo export
+	done
+
+Download new distro
+	sudo ARCH=i386  DIST=jessie pbuilder --create --http-proxy http://192.168.1.57:3128/ --configfile /home/deb/.pbuilderrc --override-config
+	sudo ARCH=amd64 DIST=jessie pbuilder --create --http-proxy http://192.168.1.57:3128/ --configfile /home/deb/.pbuilderrc --override-config
+	rm pbuilder/lenny-*
+	./mk_pbuilder_symlinks.sh
+
+Fix update.sh (add new dist, remove old).
+
+Purge packages cache to ree some space
+	cd pbuilder/aptcache
+	rm -rf *
+
+And don't forget to update source package build scripts!
+
