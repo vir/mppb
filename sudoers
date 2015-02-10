@@ -1,0 +1,5 @@
+
+deb builder=(root)NOPASSWD:SETENV:/usr/sbin/pbuilder, (root)NOPASSWD:SETENV:/usr/bin/linux32
+deb builder=(root)NOPASSWD:SETENV:/home/deb/cleanup.sh
+www-data builder=(deb)NOPASSWD:/home/deb/startbuild.pl, (deb)NOPASSWD:/home/deb/reprepro.sh
+
