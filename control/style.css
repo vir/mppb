@@ -1,8 +1,10 @@
 a { text-decoration:none; }
 a:hover { text-decoration:underline; }
 table    { border:1px solid black; border-collapse:collapse; }
-table td { border:1px solid #AAA; margin:0; padding:.1em .2em; }
+table td { border:1px solid #AAA; margin:0; padding:.1em .4em; }
 table th { background-color: #FFA; padding:.1em .3em; }
+table.striped tr:nth-child(odd)  { background-color:#FFE; }
+table.striped tr:nth-child(even) { background-color:#FEF; }
 .weak { font-size:80%; color:gray; }
 
 #jobslist { float:right; overflow:hidden; }

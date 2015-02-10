@@ -26,6 +26,19 @@ function resize_handler()
 
 	// scroll list to bottom
 	l.scrollTop = l.scrollHeight;
+
+	// scroll log to bottom
+	//scrollBottom(v);
+}
+function frameLoad(e)
+{
+	scrollBottom(e);
+}
+function scrollBottom(e)
+{
+	var doc = e.contentWindow ? e.contentWindow.document : e.contentDocument;
+	var h = doc.compatMode != 'CSS1Compat' ? doc.body.scrollHeight : doc.documentElement.scrollHeight;
+	e.contentWindow.scrollTo(0, h);
 }
 ***
 
@@ -66,6 +79,7 @@ if(@w) {
 print start_div({-style=>'float:right'});
 print start_form({-method=>'post', -action=>'control.pl'});
 print submit(-name=>'pushqueue', -value=>'Push queue');
+#print button(-onClick=>"frameLoad(getElementById('view'))", -value=>'frameLoad()');
 print end_from;
 print end_div."\n";
 
@@ -74,9 +88,9 @@ print start_div({-id=>'jobslist'}).start_table."\n";
 foreach my $j(@jobs) {
 	if(ref($j)) {
 		my $status = pop @$j;
-		print Tr({-class=>lc $status}, td($j))."\n";
+		print Tr({-class=>lc $status}, td($j), td($status))."\n";
 	} else {
-		print Tr(td({-colspan=>3}, $j))."\n";
+		print Tr(td({-colspan=>5}, $j))."\n";
 	}
 }
 print end_table.end_div."\n";
@@ -84,10 +98,11 @@ print end_table.end_div."\n";
 print div(ul({-class=>'hor'}, li([
 	a({-href=>url(-relative=>1)}, 'Reload'),
 	a({-href=>"control.pl"}, 'Incoming queues'),
+	a({-href=>"repo.pl"}, 'Packages repository'),
 	a({-href=>"/logs/".date(), -target=>'view'}, 'Today build logs'),
 ])))."\n";
 
-print iframe({-id=>'view', -name=>'view', -style=>'width:50%; height:100%;', -scrolling=>'auto'})."\n";
+print iframe({-id=>'view', -name=>'view', -style=>'width:50%; height:100%;', -scrolling=>'auto', -onLoad=>'frameLoad(this);'})."\n";
 
 print end_html();
 
@@ -100,14 +115,15 @@ sub get_jobs_for_date
 sub load_job
 {
 	my($path) = @_;
-	my($queue, $dist, $name, $log, $status);
+	my($queue, $dist, $name, $log, $status, $arch);
 	$log = $path; $log =~ s#.*/(?=\d{4}-\d\d-\d\d)##;
 #warn "Check $path: ".join(' ', glob("$path/*"))."\n";
 	if(open F, "< $path/job.txt") {
 		my $d = <F>;
 		close F;
 		chomp $d;
-		($queue, $dist, undef, $name) = split /\s+/, $d;
+		($queue, $dist, undef, $name, $arch) = split /\s+/, $d;
+		$arch ||= '-';
 	}
 	my $id = $path; $id =~ s#.*/##;
 	my @oks = glob "$path/*-OK.log";
@@ -124,7 +140,7 @@ sub load_job
 		$status = 'Unknown';
 	}
 #warn "Status: $status\n";
-	return [ a({-href=>"/logs/$log", -title=>$status, -target=>'view'}, $id), $dist||'-', $name||'-', $status ];
+	return [ a({-href=>"/logs/$log/build.log", -title=>$status, -target=>'view'}, $id), $queue, $name||'-', $dist||'-', $arch, $status ];
 }
 
 sub get_waiting_jobs
@@ -134,7 +150,12 @@ sub get_waiting_jobs
 	my @wjobs = grep { s#.*/##; !/\D/ && ! -d $h."/logs/$d/$_" } @tasks;
 	my @r;
 	foreach my $id(@wjobs) {
-		my($dist, $name, $status);
+		my($dist, $name, $status, $queue);
+		if(open F, "< $h/tasks/$id/queue") {
+			my $queue = <F>;
+			close F;
+			chomp $queue;
+		}
 		my($chf) = glob "$h/tasks/$id/*_source.changes";
 		if($chf) {
 			open F, $chf or warn;
@@ -150,7 +171,7 @@ sub get_waiting_jobs
 		} else {
 			$status = 'Error';
 		}
-		push @r, [ $id, $dist||'-', ($name?$name.mk_start_button($id):'-'), $status ];
+		push @r, [ $id, $queue||'-', ($name?$name.mk_start_button($id):'-'), $dist||'-', '-', $status ];
 	}
 	return @r;
 }

@@ -80,18 +80,20 @@ sub jobs_purge
 foreach my $queue(qw( nightly releases vir )) {
 	chdir "/home/deb/inq/$queue" or die;
 	my %l = map { $_ => 86400 * -M($_) } glob("*");
-	my @changes = grep { /(.*)_source.changes$/ } sort keys %l;
+	my @changes = grep { /_source.changes$/ } sort keys %l;
 
 	print start_form();
 	print h2($queue);
 	if(@changes) {
 		print start_table();
-		print Tr(th([qw( * Name Age Ok )]))."\n";
+		print Tr(th([qw( * Name Version Age Ok )]))."\n";
 		foreach my $f(@changes) {
 			next unless $f =~ /(.*)_source.changes$/;
-			my $ok = (-f($1.'.tar.gz') || -f($1.'.tar.bz2'))
-				&& -f($1.'.dsc');
-			print Tr(td(checkbox(-name=>'name', -value=>$1, -label=>'')), td($1), td($l{$f}.' seconds ago'), td($ok?'OK':'BAD'))."\n";
+			my @errs;
+			push @errs, 'No source archive' unless(grep { -f($1.$_) } qw( .tar.gz .tar.bz2 .tar.xz .debian.tar.xz ));
+			push @errs, 'No .dsc file' unless -f($1.'.dsc');
+			my($pn, $pv) = split('_', $1);
+			print Tr(td(checkbox(-name=>'name', -value=>$1, -label=>'')), td($pn), td($pv), td($l{$f}.' seconds ago'), td(@errs?abbr({-title=>"@errs"}, 'BAD'):'Ok'))."\n";
 		}
 		print end_table();
 		print hidden(-name=>'queue', -value=>$queue, -force=>1);
